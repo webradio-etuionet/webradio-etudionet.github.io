@@ -47,11 +47,33 @@
   <div class="player">
     <img src="logo.jpg" alt="Logo WEBRADIO ETUDIONET">
     <h1>WEBRADIO ETUDIONET</h1>
-    <audio controls autoplay>
-      <source src="URL_MP3_DIRECT_ICI" type="audio/mpeg">
-      Votre navigateur ne supporte pas la lecture audio.
-    </audio>
+  
+    <link href="https://manager10.streamradio.fr:1780/media/static/css/player/base.css" rel="stylesheet" type="text/css" />
+<link href="https://manager10.streamradio.fr:1780/media/static/css/player/style-14.css" rel="stylesheet" type="text/css" />
+<link href="https://manager10.streamradio.fr:1780/media/static/css/ui/jquery.ui.slider.css" rel="stylesheet" type="text/css" />
+<script>
+if (typeof jQuery == 'undefined') { 
+  var i = "i";
+  document.write('<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></scr' + i + 'pt>');
+}
+</script>
+<script type="text/javascript" src="https://manager10.streamradio.fr:1780/media/static/js/jplayer/jquery.jplayer.min.js"></script>
+<script type="text/javascript" src="https://manager10.streamradio.fr:1780/media/static/js/jplayer/jquery-ui-1.10.2.custom.min.js"></script>
+<script type="text/javascript" src="https://manager10.streamradio.fr:1780/media/static/js/jplayer/modernizr.js"></script>
+<script type="text/javascript" src="https://manager10.streamradio.fr:1780/media/static/js/jplayer/rt_pl.js"></script>
+<div id="rtJpID-1"></div>
+<div class="rtplwrapperForIe">
+<div id="rtplayer-1" class="rtplmain_window gradient_style-14">
+<a id="button_play_stop-1" class="rtplbutton_play_stop button_play_stop_style-14" href="#"></a>
+<div id="current_time-1" class="rtplcurrent_time">00:00:00</div>
+<a id="rtplmute-1" class="rtplmute button_mute_style-14" href="#"></a>
+<div id="rtplvolume-1" class="rtplvolume"></div>
+<a id="rtplmaxvol-1" class="rtplmaxvol button_max_vol_style-14" href="#"></a>
+</div>
+</div>
+<script>$(document).ready( function(){ new RTPlayer( 1, 100, true, "https://manager10.streamradio.fr:1780",  "mp3", {"mp3": "https://manager10.streamradio.fr:1795/stream"}, "fr")  });</script>
     <p>Écoutez notre diffusion en direct depuis votre navigateur.</p>
   </div>
 </body>
 </html>
+
