@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WEBRADIO ETUDIONET — Écouter en direct</title>
+  <meta name="description" content="WEBRADIO ETUDIONET - écoute en direct" />
+  <style>
+    :root{
+      --bg:#f4f9ff;
+      --card:#ffffff;
+      --accent:#0b63d6;
+      --muted:#666;
+      --glass: rgba(255,255,255,0.7);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg, #e9f2ff 0%, var(--bg) 100%);
+      color:#111;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .card{
+      width:100%;
+      max-width:860px;
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:0 8px 30px rgba(11,99,214,0.12);
+      padding:28px;
+      display:grid;
+      grid-template-columns: 220px 1fr;
+      gap:20px;
+      align-items:center;
+    }
+    .cover{
+      width:100%;
+      border-radius:12px;
+      overflow:hidden;
+      min-height:180px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg, #e6f0ff 0%, #ffffff 100%);
+    }
+    .cover img{width:100%; height:100%; object-fit:cover; display:block}
+    h1{margin:0 0 8px 0; font-size:20px;}
+    p.lead{margin:0 0 16px 0; color:var(--muted)}
+    .player{
+      background:var(--glass);
+      padding:14px;
+      border-radius:12px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .btn{
+      -webkit-appearance:none;
+      border:0;
+      background:var(--accent);
+      color:white;
+      padding:10px 16px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 4px 14px rgba(11,99,214,0.18);
+    }
+    .btn.secondary{
+      background:transparent;
+      color:var(--accent);
+      border:1px solid rgba(11,99,214,0.12);
+      box-shadow:none;
+      font-weight:600;
+    }
+    .meta{font-size:13px; color:var(--muted);}
+    .controls{display:flex; gap:12px; align-items:center; flex:1;}
+    .progress{
+      height:6px;
+      background:#e6eefc;
+      border-radius:6px;
+      flex:1;
+      overflow:hidden;
+    }
+    .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, #2d8cff, #0b63d6);}
+    .volume{display:flex; gap:8px; align-items:center}
+    input[type="range"]{width:110px}
+    footer{grid-column:1/-1; text-align:center; margin-top:8px; font-size:12px; color:var(--muted)}
+    @media (max-width:720px){
+      .card{grid-template-columns: 1fr; padding:18px}
+      .cover{min-height:160px}
+      .controls{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <div class="cover" aria-hidden="true">
+      <!-- Remplace cover.jpg par l'image de ta station ou par un URL externe -->
+      <img src="https://via.placeholder.com/400x400.png?text=WEBRADIO+ETUDIONET" alt="Logo WEBRADIO ETUDIONET">
+    </div>
+
+    <div>
+      <h1>WEBRADIO ETUDIONET</h1>
+      <p class="lead">Bienvenue — écoutez notre diffusion en direct. Cliquez sur ▶︎ pour démarrer.</p>
+
+      <div class="player" id="player-ui">
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:220px;">
+          <div class="meta">Statut: <strong id="status">Hors ligne</strong></div>
+          <div class="meta">Titre courant: <span id="title">—</span></div>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="btn" id="playBtn" aria-pressed="false">▶︎ Play</button>
+            <button class="btn secondary" id="stopBtn">■ Stop</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="progress" title="progress">
+            <i id="prog"></i>
+          </div>
+
+          <div class="volume">
+            <label for="vol" class="meta">Volume</label>
+            <input id="vol" type="range" min="0" max="1" step="0.05" value="0.9" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Élément audio (invisible) -->
+      <audio id="audio" preload="none">
+        <source id="audio-src" src="YOUR_STREAM_URL_HERE" type="audio/mpeg">
+        Ton navigateur ne supporte pas la balise audio.
+      </audio>
+
+      <p style="margin-top:10px;font-size:13px;color:var(--muted)">
+        Si le flux ne démarre pas, vérifie l'URL de flux (doit être un mp3/ogg ou compatible HTML5) et que le serveur autorise le CORS si besoin.
+      </p>
+    </div>
+
+    <footer>
+      © WEBRADIO ETUDIONET — Page statique pour GitHub Pages
+    </footer>
+  </main>
+
+  <script>
+    // Sélecteurs
+    const audio = document.getElementById('audio');
+    const src = document.getElementById('audio-src');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const statusEl = document.getElementById('status');
+    const titleEl = document.getElementById('title');
+    const vol = document.getElementById('vol');
+    const prog = document.getElementById('prog');
+
+    // Remplace ici la valeur si tu veux préconfigurer directement le flux:
+    // src.src = "https://https://manager10.streamradio.fr:1780//stream";
+
+    // État
+    let isPlaying = false;
+    let progressInterval = null;
+
+    // Gestion du volume
+    audio.volume = parseFloat(vol.value);
+    vol.addEventListener('input', ()=> { audio.volume = parseFloat(vol.value); });
+
+    // Play
+    async function startPlay(){
+      try {
+        statusEl.textContent = 'Connexion...';
+        // Certaines sources demandent preload + load()
+        audio.load();
+        await audio.play(); // tentative de lecture (peut échouer si autoplay bloqué)
+        isPlaying = true;
+        playBtn.textContent = '⏸ Pause';
+        playBtn.setAttribute('aria-pressed', 'true');
+        statusEl.textContent = 'En direct';
+        startProgress();
+        // essayer de récupérer meta (optionnel)
+        fetchStreamTitle();
+      } catch (err) {
+        console.warn('Erreur lecture:', err);
+        statusEl.textContent = 'Appuyez sur Play';
+        isPlaying = false;
+      }
+    }
+
+    function stopPlay(){
+      audio.pause();
+      audio.currentTime = 0;
+      isPlaying = false;
+      playBtn.textContent = '▶︎ Play';
+      playBtn.setAttribute('aria-pressed', 'false');
+      statusEl.textContent = 'Arrêté';
+      stopProgress();
+    }
+
+    playBtn.addEventListener('click', ()=>{
+      if(!isPlaying) startPlay(); else { audio.pause(); isPlaying=false; playBtn.textContent='▶︎ Play'; statusEl.textContent='En pause'; stopProgress();}
+    });
+
+    stopBtn.addEventListener('click', stopPlay);
+
+    // Simple "progress" visuel (boucle visuelle pendant la lecture)
+    function startProgress(){
+      stopProgress();
+      let w=0;
+      progressInterval = setInterval(()=>{
+        w = (w + 3) % 100;
+        prog.style.width = w + '%';
+      }, 400);
+    }
+    function stopProgress(){ if(progressInterval){ clearInterval(progressInterval); progressInterval = null; prog.style.width = '0%'; } }
+
+    // Tentative basique d'obtenir le titre du flux (fonctionne si serveur expose JSON ou metadonnées CORS autorisé)
+    async function fetchStreamTitle(){
+      // Exemple Icecast: /status-json.xsl
+      const base = (new URL(src.src, window.location.href)).origin;
+      const candidates = [
+        src.src + '/;stream/1',                  // parfois
+        base + '/status-json.xsl',               // icecast
+        base + '/status-json'                    // autre
+      ];
+      for(const url of candidates){
+        try{
+          const r = await fetch(url, {cache:'no-store'});
+          if(!r.ok) continue;
+          const j = await r.json();
+          // Parsing facile pour Icecast; on ne garantit rien
+          let s = JSON.stringify(j);
+          // Essayer d'extraire un titre:
+          let maybeTitle = (j && j.icestats && j.icestats.source && j.icestats.source.title) || j.title || null;
+          if(!maybeTitle){
+            // recherche textuelle
+            const m = s.match(/title":"([^"]{2,200})/i);
+            if(m) maybeTitle = m[1];
+          }
+          if(maybeTitle){
+            titleEl.textContent = maybeTitle;
+            return;
+          }
+        } catch(e){ /* ignore */ }
+      }
+      // si rien
+      titleEl.textContent = 'Titre non disponible';
+    }
+
+    // Amélioration: si l'utilisateur arrive sur la page et clique n'importe où, tente de lancer la lecture (utile sur mobile)
+    document.addEventListener('click', function firstTry(){
+      if(!isPlaying){
+        // ne force pas la lecture automatique, mais tente
+        //startPlay(); // ne force pas pour éviter comportement intrusif
+      }
+      document.removeEventListener('click', firstTry);
+    });
+
+    // Gestion des erreurs audio
+    audio.addEventListener('error', (e)=>{
+      console.error('Audio error', e);
+      statusEl.textContent = 'Erreur de lecture';
+    });
+
+    // Affiche l'URL du flux si besoin (débogage)
+    // console.log('Flux configuré:', src.src);
+  </script>
+</body>
+</html>
